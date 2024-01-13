@@ -1,5 +1,38 @@
---Do not change.
 worldWarp = 1
+runningSince = os.date("%H:%M")
+
+function wh()
+  countFlour = 0
+  for _, obj in ipairs(getObjects()) do
+    if obj.id == flourId then
+      countSeed = countFlour + obj.count
+    end
+  end
+  wbh = Webhook.new(webhookLink)
+  wbh.content = "["..getBot().name.."] Flour dropped at "..os.date("%H:%M")
+  wbh.embed1.use = true
+  wbh.embed1.color = 0x264428
+  wbh.embed1.title = "Flour Tracker"
+  wbh.embed1:addField("<:flour:1194082718791782421> "..countFlour.."x seed dropped.",true)
+  wbh.embed1.footer.text = "Running "..#getBots().." bot(s) since "..runningSince.."."
+  wbh:send()
+end
+wh()
+
+function checkTile()
+  local countObj = 0 print("Counting obj in tile.")
+  for _, obj in pairs(getObjects()) do
+    if obj.x // 32 == dropX + 1 and obj.y // 32 == dropY then
+      countObj = countObj + obj.count
+    end
+  end
+  print("Count = "..countObj)
+  if countObj < maxObjperTile then
+    return true
+  else
+    return false
+  end
+end
 
 while true do
   --Auto warp storage
@@ -49,32 +82,40 @@ while true do
   --Auto drop flour
   if getBot():getInventory():getItemCount(flourId) >= dropLimit then   print("In auto drop.")
     while not getBot():isInWorld(storageFlour) do
-      getBot():warp(storageFlour, flourId) print("Warping.")
+      getBot():warp(storageFlour, flStrgId) print("Warping.")
       sleep(12000)
+    end
+    setTile = 0
+    if setTile == 0 then
+      for _, tile in pairs(getTiles()) do
+        if tile.fg == 20 then
+          if tile:getExtra().label == signText then
+            initialDropX = tile.x
+            initialDropY = tile.y
+            dropX = initialDropX
+            dropY = initialDropY
+            addDropX = 0
+          end
+        end
+      end
+    setTile = 1
     end
     for _, tile in pairs(getTiles()) do
       if tile.fg == 20 then
         if tile:getExtra().label == "drop" then
           initialDropX = tile.x
           initialDropY = tile.y
-          dropX = initialDropX
-          dropY = initialDropY
+          dropX = initialDropX print("X: "..dropX)
+          dropY = initialDropY print("Y: "..dropY)
           addDropX = 0
         end
       end
     end
-    dropCount = 0
-    for _, obj in pairs(getObjects()) do
-		print(dropX)
-      if (obj.x // 32) == (dropX + 1) and (obj.y // 32) == (dropY) and obj.id == flourId then
-        dropCount = dropCount + obj.count print("Counting dropped object.")
-      end
-    end
-    if dropCount > 3800 then
-      dropX = dropX + 1 print("Tile is full, moving to next tile.")
+    while not checkTile() do
+      dropX = dropX + 1 print("Tile is full, moving to next tile. New X: ")
       addDropX = addDropX + 1
-      if addDropX > maxHorizontal then
-        dropY = dropY + 1
+      if addDropX >= maxHorizontal then
+        dropY = dropY + 1 print("New Y: "..dropY)
         dropX = initialDropX
         addDropX = 0
       end
@@ -87,7 +128,27 @@ while true do
       getBot():setDirection(false)
       sleep(150)
       getBot():drop(flourId, getBot():getInventory():getItemCount(flourId)) print("Dropping flour.")
+      sleep(300)
+      attempt = 0
+      while getBot():getInventory():getItemCount(flourId) > 0 do
+        attempt = attempt + 1
+        getBot():setDirection(false)
+        sleep(500)
+        getBot():drop(flourId, getBot():getInventory():getItemCount(flourId)) print("Drop failed, attempting another try. Attempt: "..attempt)
+        if attempt >= 5 then
+          if addDropX < maxHorizontal then
+            dropX = dropX + 1 print("Assume that tile is full, moving to next tile. New X: ")
+            addDropX = addDropX + 1
+          end
+          if addDropX >= maxHorizontal then
+            dropY = dropY + 1 print("New Y: "..dropY)
+            dropX = initialDropX
+            addDropX = 0
+         end
+        end
+      end
     end
+  wh()
   end
 print("doing nothing.")
 sleep(300)
