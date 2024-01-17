@@ -5,7 +5,7 @@ listenTo = "OnDialogRequest"
 findString = "It takes 50 per grind"
 canGrind = false
 worldSort = 1
- 
+
 function wh()
   countFlour = 0
   for _, obj in ipairs(getObjects()) do
@@ -28,7 +28,7 @@ function wh()
   end
 end
 wh()
- 
+
 while true do
   --Auto warp storage
   if getBot():getInventory():getItemCount(wheatId) < 50 and getBot():getInventory():getItemCount(flourId) < dropLimit then print("On condition auto warp")
@@ -61,7 +61,7 @@ while true do
             end
           end
         end
- 
+
     for _, obj in ipairs(getObjects()) do
       if obj.id == wheatId and getBot():getInventory():getItemCount(wheatId) < 50 and (#getBot():getPath(obj.x // 32, obj.y // 32) > 0 or getBot():isInTile(obj.x // 32, obj.y // 32)) then
         if not getBot():isInTile(obj.x // 32, obj.y // 32) then
@@ -117,7 +117,7 @@ while true do
                 grindYa = tile.y
               end
             end
-          end
+	      end
           getBot():place(grindXa, grindYa, 880)
           print("Placing "..getInfo(880).name.." at X: "..grindXa.." Y: "..grindYa)
         end)
@@ -208,4 +208,4 @@ while true do
   end
 print("doing nothing.")
 sleep(300)
-		end
+end
