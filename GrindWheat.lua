@@ -39,7 +39,7 @@ while true do
     end
     count = 0
     for _, obj in ipairs(getObjects()) do
-      if obj.id == wheatId and (#getBot():getPath(obj.x // 32, obj.y // 32) > 0 or getBot():isInTile(obj.x // 32, obj.y // 32)) do
+      if obj.id == wheatId and (#getBot():getPath(obj.x // 32, obj.y // 32) > 0 or getBot():isInTile(obj.x // 32, obj.y // 32)) then
         count = count + obj.count
       end
       if count == 0 then
